@@ -1,0 +1,12 @@
+2022-06-15 17:44:18 error [www]: GET /hello Not Found
+2022-06-16 17:38:09 error [www]: GET /favicon.ico Not Found
+2022-06-28 17:07:03 error [www]: GET /favicon.ico Not Found
+2022-06-28 17:09:26 error [www]: GET /favicon.ico Not Found
+2022-06-29 13:39:58 error [www]: GET /favicon.ico Not Found
+2022-06-29 14:29:56 error [www]: GET /get_user/get_user? Not Found
+2022-06-29 15:14:13 error [www]: GET /__vite_ping Not Found
+2022-06-29 15:14:14 error [www]: GET /__vite_ping Not Found
+2022-06-29 15:14:52 error [www]: GET /favicon.ico Not Found
+2022-06-30 15:25:03 error [www]: GET /login Not Found
+2022-06-30 15:27:19 error [www]: GET /login Not Found
+2022-07-04 16:10:23 error [www]: GET /favicon.ico Not Found
