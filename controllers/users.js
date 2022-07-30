@@ -2,18 +2,21 @@
  * @Author: jiangxx 18635949970@163.com
  * @Date: 2022-06-30 15:19:26
  * @LastEditors: jiangxx 18635949970@163.com
- * @LastEditTime: 2022-07-15 15:09:49
+ * @LastEditTime: 2022-07-29 16:59:20
  * @FilePath: \expressFrame\controllers\users.js
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 // 引用用户模版数据
 const Users = require('../models/users.js');
 
-const {setToken} = require('../until/jwt_token.js')
+const {setToken, decToken} = require('../until/jwt_token.js')
 
 const usersController = {
+ 
   // showUsers 获取用户数据并返回到页面
   showUsers: async function(req,res,next){
+    // 获取前端token并解密
+    // let auth = req.headers.authorization;
     try{
       let userData = await Users.all()
       res.json({
@@ -31,12 +34,13 @@ const usersController = {
       let condition = {name: 'userName', value: req.body.userName}
       let selectData = await Users.getAll(condition);
       if (selectData.length !== 0) {
-        let tokenData = setToken(req.body.userName, req.body.password);
+        let tokenData = setToken(req.body.userName, req.body.password, 60*60*2);
+        let refreshData = setToken(req.body.userName, req.body.password, 60*60*24*14);
         if (selectData[0].password === req.body.password) {
           res.json({
             code: 200,
             message: "登录成功",
-            data: tokenData
+            data: {'token': tokenData, 'refresh_token': refreshData}
           })
         } else {
           res.json({ code: 2, message: "密码错误，请重试", data: [] })
