@@ -2,7 +2,7 @@
  * @Author: jiangxx 18635949970@163.com
  * @Date: 2022-06-15 17:11:51
  * @LastEditors: jiangxx 18635949970@163.com
- * @LastEditTime: 2022-07-04 17:49:49
+ * @LastEditTime: 2022-09-15 16:37:51
  * @FilePath: \expressFrame\routes\index.js
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -11,6 +11,7 @@ var router = express.Router();
 // let bodyParser = require('body-parser');
 const userController = require('../controllers/user');
 const usersController = require('../controllers/users');
+const listController = require('../controllers/w_list');
 // 解析提交的json参数
 // let jsonParser = bodyParser.json();
 
@@ -25,4 +26,6 @@ router.get('/', function(req, res, next) {
 router.get('/get_user', userController.showUser);
 router.post('/login', usersController.selectUsers);
 router.post('/sigin', usersController.setUsers);
+router.get('/list',listController.getList);
+router.get('/trend',listController.getTrend);
 module.exports = router;

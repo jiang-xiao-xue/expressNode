@@ -10,3 +10,4 @@
 2022-06-30 15:25:03 error [www]: GET /login Not Found
 2022-06-30 15:27:19 error [www]: GET /login Not Found
 2022-07-04 16:10:23 error [www]: GET /favicon.ico Not Found
+2022-09-15 11:46:36 error [www]: POST /list Not Found
