@@ -1,0 +1,283 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+#toast {
+  position: fixed;
+  top: -50px;
+  left: 50%;
+  height: 30px;
+  line-height: 30px;
+  transform: translate(-50%, 400%);
+  padding: 0 20px;
+  /* border-radius: 15px; */
+  z-index: 999;
+  opacity: 0;
+  transition: all 1s;
+  background-color: aliceblue;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+}
+#toast span {
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  color: #000;
+  background: #00EFFA;
+  display: block;
+  border-radius: 50% 50%;
+  margin-right: 10px;
+}
+#toast.success {
+  /* background-color: #1660fd; */
+  /* color: #67c23a; */
+}
+#toast.error {
+  /* background-color: #970015; */
+  /* color: #f56c6c; */
+}
+#toast.warn {
+  /* background-color: #c17600; */
+  /* color: #f8c454; */
+}
+#toast.active {
+  top: 30px;
+  opacity: 1;
+}
+
+.login, #reset {
+  width: 430px;
+  min-height: 300px;
+  margin: 0 auto;
+  margin-top: 30px;
+  padding: 0 40px;
+  position: relative;
+}
+.login .app-code, #reset .app-code {
+  width: 70px;
+  height: 70px;
+  position: absolute;
+  top: -30px;
+  right: -30px;
+}
+.app-codeimg {
+  width: 70px;
+  height: 70px;
+}
+.login .title {
+  width: 100%;
+  height: 30px;
+  color: #B3B3B3;
+  font-weight: bold;
+  display: flex;
+  margin-top: 40px;
+  cursor: pointer;
+}
+.login .title .name {
+  margin-right: 20px;
+}
+.login .title .active {
+  color: #000;
+  border-bottom: 2px solid aqua;
+}
+.form-location, .form-phone, .form-code, .form-setphone, .form-pass {
+  width: 400px;
+  height: 70px;
+  padding-left: 20px;
+  background: #F9F9F9;
+  margin-top: 20px;
+}
+.form-pass {
+  display: flex;
+  justify-content: space-between;
+}
+.form-pass input {
+  width: 300px;
+  height: 70px;
+  border: none;
+  outline: none;
+  background: #F9F9F9;
+}
+.form-pass .eye {
+  width: 70px;
+  height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.form-pass .eye img {
+  width: 28px;
+  height: 21px;
+  object-fit: cover;
+}
+.form-text {
+  width: 420px;
+  display: flex;
+  color: #ccc;
+  font-size: 12px;
+  height: 30px;
+  line-height: 30px;
+}
+.form-submit {
+  width: 420px;
+  height: 70px;
+  line-height: 70px;
+  text-align: center;
+  border: none;
+  color: #fff;
+  background: #00EFFA;
+  margin-top: 20px;
+  font-size: 20px;
+  cursor: pointer;
+}
+.form-text input {
+  margin-right: 10px;
+}
+.form-text span {
+  color: #000;
+}
+.form-title {
+  width: 400px;
+  height: 30px;
+  line-height: 30px;
+  font-size: 14px;
+  color: #ccc;
+}
+.form-location select {
+  width: 400px;
+  height: 40px;
+  border: none;
+  outline: none;
+  background: #F9F9F9;
+}
+/* .form-location select:focus option:checked {
+  width: 400px;
+  height: 40px;
+  background: #ccc;
+  color: #00EFFA;
+} */
+.form-phone .country, .form-code .code {
+  display: flex;
+}
+
+.form-phone select {
+  width: 100px;
+  height: 40px;
+  border: none;
+  outline: none;
+  background: #F9F9F9;
+}
+.form-phone input {
+  width: 300px;
+  height: 40px;
+  border: none;
+  outline: none;
+  background: #F9F9F9;
+}
+.form-code input {
+  width: 270px;
+  height: 70px;
+  border: none;
+  outline: none;
+  background: #F9F9F9;
+}
+.form-code button {
+  width: 100px;
+  height: 70px;
+  line-height: 70px;
+  text-align: center;
+  border: none;
+  outline: none;
+  background: #F9F9F9;
+  color: #00EFFA;
+  cursor: pointer;
+}
+.is-tip {
+  color: #00EFFA;
+  font-size: 12px;
+  margin-top: 10px;
+}
+.bottom {
+  width: 200px;
+  height: 100px;
+  margin: 0 auto;
+  margin-top: 10px;
+}
+.bottom .other-tip {
+  font-size: 14px;
+  color: #ccc;
+  text-align: center;
+}
+.bottom .icon-img {
+  width: 200px;
+  height: 70px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.bottom .icon-img .img {
+  width: 54px;
+  height: 54px;
+  border-radius: 50% 50%;
+  display: block;
+  cursor: pointer;
+}
+.bottom .icon-img .img img {
+  width: 100%;
+  height: 100%;
+}
+.form-num {
+  width: 400px;
+  height: 40px;
+  line-height: 40px;
+}
+.form-setphone input{
+  width: 400px;
+  height: 70px;
+  border: none;
+  outline: none;
+  background: #F9F9F9;
+}
+.form-success {
+  width: 100px;
+  height: 100px;
+  border-radius: 50% 50%;
+  color: #fff;
+  font-weight: bold;
+  line-height: 100px;
+  text-align: center;
+  background: #0ABD5B;
+  font-size: 30px;
+  margin: 0 auto;
+  margin-top: 30px;
+}
+.form-tip {
+  width: 420px;
+  height: 40px;
+  line-height: 40px;
+  display: flex;
+  justify-content: space-between;
+  color: #00EFFA;
+}
+.form-tip div {
+  cursor: pointer;
+}
+.btn-disabled {
+  background: #aeeff3;
+  cursor:not-allowed
+}
+
+.form-error {
+  border: 1px solid red;
+}
+
+.error-tip {
+  color: red;
+  width: 420px;
+  font-size: 12px;
+  height: 20px;
+  line-height: 20px;
+}
+

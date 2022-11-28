@@ -1,0 +1,178 @@
+<!--
+ * @Author: jiangxx 18635949970@163.com
+ * @Date: 2022-11-23 10:30:04
+ * @LastEditors: jiangxx 18635949970@163.com
+ * @LastEditTime: 2022-11-25 15:37:11
+ * @FilePath: \login\reset.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link href="./css/login.css" type="text/css" rel="stylesheet" />
+</head>
+<body>
+  <div id="reset">
+    <div class="app-code">
+      <img class="app-codeimg" src="http://leishen.oss-cn-qingdao.aliyuncs.com/activity_m/thunderobot/login/code.png" alt="">
+    </div>
+    <!-- 重置密码 -->
+    <template v-if="resetPass">
+      <div class="form-num">
+        请输入注册的邮箱地址、手机号码或者雷神账号
+      </div>
+      <!-- 选择方式 -->
+      <div class="form-location">
+        <div class="form-title">选择方式</div>
+        <select name="" id="" v-model="selectLogin" @change="selectType">
+          <option v-for="(item, index) in selectloginData" :value="item.id">{{item.name}}</option>
+        </select>
+      </div>
+      <!-- 选择方式 手机号 国家码 -->
+      <div class="form-phone" v-if="!selectLogin" :class="{'form-error': resetphoneError}">
+        <div class="form-title">国家码</div>
+        <div class="country">
+          <select name="" id="" v-model="selectresetPhone">
+            <option v-for="(item, index) in phoneresetData" :value="item.id">{{item.value}}</option>
+          </select>
+          <input type="text" v-model="resetphoneNum" maxlength="11" placeholder="请输入手机号">
+        </div>
+      </div>
+      <div class="error-tip" v-show="resetphoneError && !selectLogin">{{resetphoneError}}</div>
+      <div class="form-setphone" :class="{'form-error': resetemailError}" v-if="selectLogin">
+        <input type="text" v-model="resetEmail" placeholder="请输入邮箱">
+      </div>
+      <div class="error-tip" v-show="resetemailError && selectLogin">{{resetemailError}}</div>
+      <button class="form-submit" :disabled="!resetphoneNum && !resetEmail" :class="{'btn-disabled':!resetphoneNum && !resetEmail }" @click="nextCode">下一步</button>
+    </template>
+    <!-- 发送验证码 -->
+    <template v-if="isSendCode">
+      <!-- 雷神账号or手机号验证 -->
+      <div class="form-num">
+        为确认身份，我们仍需验证您的安全<span v-if="!selectLogin">手机</span><span v-if="selectLogin">邮箱</span>
+      </div>
+      <div class="form-num" style="font-size: 12px; color: #ccc;">
+        点击发送验证码按钮，我们将会发送一条带有验证码的信息至
+      </div>
+      <div class="form-num" style="font-size: 12px; color: #ccc;" v-if="!selectLogin">
+        手机 <span  style="font-size: 14px; color: #000;">{{resetphoneNum}}</span>
+      </div>
+      <div class="form-num" style="font-size: 12px; color: #ccc;" v-if="selectLogin">
+        邮箱 <span  style="font-size: 14px; color: #000;">{{resetEmail}}</span>
+      </div>
+      <button class="form-submit"  :disabled="false" :class="{'btn-disabled':false }" @click="sendCode">发送验证码</button>
+    </template>
+    <!-- 输入验证码 -->
+    <template v-if="isPutCode">
+      <!-- 输入手机验证码 -->
+      <div class="form-num" v-if="!selectLogin">
+        请用安全手机
+        <span style="color: #00EFFA;">{{resetphoneNum}}</span>
+        获取短信验证短信
+      </div>
+      <div class="form-num" v-else>
+        验证码已发送至{{resetEmail}}的邮箱，请及时输入
+      </div>
+      <div class="form-code" :class="{'form-error': resetcodeError}">
+        <div class="code">
+          <input type="text" v-model="resetcodeNum" placeholder="请输入验证码">
+          <button>获取验证码</button>
+        </div>
+      </div>
+      <div class="error-tip" v-show="resetcodeError">{{resetcodeError}}</div>
+      <p class="is-tip">收不到验证码？</p>
+      <button class="form-submit" :disabled="!resetcodeNum" :class="{'btn-disabled':!resetcodeNum}" @click="goSetPass">下一步</button>
+    </template>
+    <!-- 设置密码 -->
+    <template v-if="isSetPass">
+      <set-password :is-phone="false" :phoneNum="resetphoneNum" @password="getPass"></set-password>
+    </template>
+    <!-- 密码修改完成 -->
+    <template v-if="isEditOver">
+      <div class="form-success">√</div>
+      <div class="form-num">
+       密码修改成功
+      </div>
+      <div class="form-num" style="color: #ccc;">
+        建议不要在多个网站使用同一个密码，以确保账号安全
+       </div>
+       <div class="form-num" style="color: #ccc;">
+        2秒后自动进入
+       </div>
+       <button class="form-submit" :disabled="false" :class="{'btn-disabled':false }">去登录</button>
+    </template>
+  </div>
+</body>
+</html>
+<script src="./js/browser.min.js"></script>
+<script src="./js/polyfill.min.js"></script>
+<script src="./js/jquery.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script> -->
+<script src="./js/vue.js"></script>
+<script src="./js/httpVueLoader.js"></script>
+<!-- <script src="https://unpkg.com/vue"></script> 
+<script src="https://unpkg.com/http-vue-loader"></script> -->
+<!-- <script>document.write('<script src="./js/component.js?t=' + new Date().getTime() + '"><\/script>')</script> -->
+<script type="text/babel">
+  Vue.config.productionTip = false;
+  Vue.use(httpVueLoader);
+  var vue = new Vue({
+    components: {
+      'set-password': httpVueLoader('./setpassword.vue'),
+    },
+    data: {
+      resetPass: true, // 是否重置密码
+      isSendCode: false, // 是否发送验证码
+      isPutCode: false, // 是否输入验证码
+      isSetPass: false, // 是否设置密码
+      isEditOver: false, // 密码是否修改完成
+      // isPhone: false, // 是否通过手机号找回
+      selectLogin: 0, //重置方式 0：手机哈 1：邮箱
+      selectresetPhone: 1, // 重置密码时 国家码id
+      phoneresetData: [ // 重置密码时 国家码列表
+        {id: 0, value: '+86'},
+        {id: 1, value: '+85'}
+      ],
+      selectloginData: [
+        {id: 0, name: '手机号'},
+        {id: 1, name: '邮箱'},
+      ],
+      resetphoneNum: '17836985647', // 重置密码时 手机号
+      resetEmail: '', // 重置密码时 邮箱
+      resetcodeNum: '' ,// 手机号验证码
+      resetphoneError: '', // 重置手机号错误提示
+      resetcodeError: '', // 验证码错误提示
+      resetemailError: ''
+    },
+    methods: {
+      selectType: function(e) {
+          console.log(e.target.value)
+      },
+      // 下一步至验证码模块
+      nextCode: function() {
+        this.resetPass = false // 是否重置密码
+        this.isSendCode = true // 是否发送验证码
+      },
+      // 发送验证码
+      sendCode: function () {
+        this.isSendCode = false // 是否发送验证码
+        this.isPutCode = true // 是否输入验证码
+      },
+      // 去设置密码
+      goSetPass: function () {
+        this.isPutCode = false // 是否输入验证码
+        this.isSetPass = true // 是否设置密码
+      },
+      // 获取到设置的密码
+      getPass: function(data) {
+        this.isSetPass = false // 是否设置密码
+        this.isEditOver = true // 密码是否修改完成
+        console.log(data)
+      }
+    }
+  }).$mount('#reset')
+</script>

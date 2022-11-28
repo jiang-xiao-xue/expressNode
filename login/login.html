@@ -1,0 +1,154 @@
+<!--
+ * @Author: jiangxx 18635949970@163.com
+ * @Date: 2022-11-22 11:34:28
+ * @LastEditors: jiangxx 18635949970@163.com
+ * @LastEditTime: 2022-11-28 16:51:09
+ * @FilePath: \machenike-KT68c:\Users\18635\Desktop\login\login.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link href="./css/login.css" type="text/css" rel="stylesheet" />
+  <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script> -->
+  
+</head>
+<body>
+  <div id="app">
+    <div class="login">
+      <div class="app-code">
+        <img class="app-codeimg" src="http://leishen.oss-cn-qingdao.aliyuncs.com/activity_m/thunderobot/login/code.png" alt="">
+      </div>
+      <div class="title">
+        <div class="name" v-for="(item, index) in loginData" :key="index" :class="{'active': active === index}" @click="handleChangeLogin(index)">{{item.name}}</div>
+      </div>
+      <!-- 登录 -->
+      <div class="sigin-in" id="siginIn" v-if="!active">
+        <sigin-in></sigin-in>
+      </div>
+      <!-- 注册 -->
+      <div class="sigin-up" id="siginUp" v-if="active">
+        <!-- 手机号注册（设置密码） -->
+        <template v-if="isSetPassword">
+          <set-password :get-data="siginData" @password="goLogin"></set-password>
+        </template>
+        <sigin-up v-if="!isSetPassword" @singin-up="setPass"></sigin-up>
+      </div>
+      <!-- 其他方式登录 -->
+      <div class="bottom">
+        <p class="other-tip">其他方式登录</p>
+        <div class="icon-img">
+          <div class="img" v-for="(item, index) in iconData" :key="index">
+            <img :src="item.iconUrl" alt="">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</body>
+</html>
+
+<script src="./js/browser.min.js"></script>
+<script src="./js/polyfill.min.js"></script>
+<script src="./js/httpVueLoader.js"></script>
+<script src="./js/vue.js"></script>
+<script src="./js/jquery.min.js"></script>
+<!-- <script src="https://unpkg.com/vue"></script> 
+<script src="https://unpkg.com/http-vue-loader"></script> -->
+<!-- <script>document.write('<script src="./js/component.js?t=' + new Date().getTime() + '"><\/script>')</script> -->
+<script type="text/babel">
+  Vue.config.productionTip = false;
+  Vue.use(httpVueLoader);
+  var Toast = Vue.extend({
+    template: ` 
+    <div id="toast" :class="[isActive ? 'active' : '', type]">
+       <span>!</span>{{ message }}
+    </div>
+  `,
+    data: function() {
+      return {
+        message: '', // 传递的消息
+        isActive: false, // 是否处于活跃状态（显示在页面内）
+        type: '', // 消息样式
+        timer1: null,
+        timer2: null,
+        
+      }
+    },
+    mounted: function () {
+      this.$nextTick(() => {
+        this.isActive = true
+      })
+      this.timer1 = setTimeout(() => {
+        this.isActive = false
+      }, this.delayer)
+      this.timer2 = setTimeout(() => {
+        this.$destroy(true) // 销毁vue实例
+      }, this.delayer * 2)
+    },
+    destroyed: function () {
+      this.$el.parentNode.removeChild(this.$el)// 移除dom元素
+      clearTimeout(this.timer1)
+      clearTimeout(this.timer2)
+    }
+  })
+  var vue = new Vue({
+    components:{
+      'sigin-in': httpVueLoader('./siginin.vue'),
+      'sigin-up': httpVueLoader('./siginup.vue'),
+      'set-password': httpVueLoader('./setpassword.vue'),
+    },
+    
+    data: {
+        isSetPassword: false, // 是否设置密码(注册成功后显示)
+        loginData: [
+          {name: '登录'},
+          {name: '注册'}
+        ],
+        active: 0, // 0: 登录 1：注册
+        iconData: [ // 其他登录方式
+          {iconUrl: 'http://leishen.oss-cn-qingdao.aliyuncs.com/activity_m/thunderobot/login/zhifubao.png', url: '', name: '支付宝'},
+          {iconUrl: 'http://leishen.oss-cn-qingdao.aliyuncs.com/activity_m/thunderobot/login/wechart.png', url: '', name: '微信'},
+          {iconUrl: 'http://leishen.oss-cn-qingdao.aliyuncs.com/activity_m/thunderobot/login/icon_QQ.png', url: '', name: 'QQ'},
+        ],
+        siginData: {},// 注册成功后回传过来的数据
+    },
+    mounted () {
+      this.handleToast()
+    },
+    methods: {
+      handleToast: function () {
+        const ToastContrustor = Vue.extend(Toast)
+        Vue.prototype.$toast = function (message, type, delayer = 3000) {
+          // 2. new的方式，根据组件构造器，可以创建出来一个组件对象
+          const toast = new ToastContrustor()
+          Object.assign(toast, { message, type, delayer })
+          // 3. 将组件对象手动的挂载到一个元素上面
+          toast.$mount(document.createElement('div'))
+          // 4. toast.$el对应的就是div
+          document.body.appendChild(toast.$el)
+        }
+      },
+      // 切换登录与注册组件
+      handleChangeLogin: function(index) {
+        this.active = index
+        // console.log(this.$toast('测试一下', 'error', 1000))
+      },
+      // 注册完成 设置密码
+      setPass: function(data) {
+        this.siginData = data
+        this.isSetPassword = !this.isSetPassword
+      },
+      // 密码设置完成（密码设置时有时间限制）
+      goLogin: function(data) {
+        console.log(data)
+      }
+    }
+  }).$mount('#app')
+  
+</script>
