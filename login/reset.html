@@ -2,7 +2,7 @@
  * @Author: jiangxx 18635949970@163.com
  * @Date: 2022-11-23 10:30:04
  * @LastEditors: jiangxx 18635949970@163.com
- * @LastEditTime: 2022-11-25 15:37:11
+ * @LastEditTime: 2022-11-29 13:54:37
  * @FilePath: \login\reset.html
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -37,7 +37,7 @@
         <div class="form-title">国家码</div>
         <div class="country">
           <select name="" id="" v-model="selectresetPhone">
-            <option v-for="(item, index) in phoneresetData" :value="item.id">{{item.value}}</option>
+            <option v-for="(item, index) in phoneresetData" :value="item.value">{{item.name}} +{{item.value}}</option>
           </select>
           <input type="text" v-model="resetphoneNum" maxlength="11" placeholder="请输入手机号">
         </div>
@@ -80,7 +80,7 @@
       <div class="form-code" :class="{'form-error': resetcodeError}">
         <div class="code">
           <input type="text" v-model="resetcodeNum" placeholder="请输入验证码">
-          <button>获取验证码</button>
+          <button :disabled="canSend" @click="captchaSend">{{content}}</button>
         </div>
       </div>
       <div class="error-tip" v-show="resetcodeError">{{resetcodeError}}</div>
@@ -89,7 +89,7 @@
     </template>
     <!-- 设置密码 -->
     <template v-if="isSetPass">
-      <set-password :is-phone="false" :phoneNum="resetphoneNum" @password="getPass"></set-password>
+      <set-password :is-phone="false" :get-data="setpassData" @password="getPass"></set-password>
     </template>
     <!-- 密码修改完成 -->
     <template v-if="isEditOver">
@@ -120,6 +120,39 @@
 <script type="text/babel">
   Vue.config.productionTip = false;
   Vue.use(httpVueLoader);
+  var Toast = Vue.extend({
+    template: ` 
+    <div id="toast" :class="[isActive ? 'active' : '', type]">
+       <span>!</span>{{ message }}
+    </div>
+  `,
+    data: function() {
+      return {
+        message: '', // 传递的消息
+        isActive: false, // 是否处于活跃状态（显示在页面内）
+        type: '', // 消息样式
+        timer1: null,
+        timer2: null,
+        
+      }
+    },
+    mounted: function () {
+      this.$nextTick(() => {
+        this.isActive = true
+      })
+      this.timer1 = setTimeout(() => {
+        this.isActive = false
+      }, this.delayer)
+      this.timer2 = setTimeout(() => {
+        this.$destroy(true) // 销毁vue实例
+      }, this.delayer * 2)
+    },
+    destroyed: function () {
+      this.$el.parentNode.removeChild(this.$el)// 移除dom元素
+      clearTimeout(this.timer1)
+      clearTimeout(this.timer2)
+    }
+  })
   var vue = new Vue({
     components: {
       'set-password': httpVueLoader('./setpassword.vue'),
@@ -131,31 +164,98 @@
       isSetPass: false, // 是否设置密码
       isEditOver: false, // 密码是否修改完成
       // isPhone: false, // 是否通过手机号找回
-      selectLogin: 0, //重置方式 0：手机哈 1：邮箱
-      selectresetPhone: 1, // 重置密码时 国家码id
+      selectLogin: 0, //重置方式 0：手机号 1：邮箱
+      selectresetPhone: 86, // 重置密码时 国家码id
       phoneresetData: [ // 重置密码时 国家码列表
-        {id: 0, value: '+86'},
-        {id: 1, value: '+85'}
+        {id: 1, name: '中国', value: 86, type: 'CN'},
+        {id: 2, name: '马来西亚', value: 60, type: 'MY'},
+        {id: 3, name: '菲律宾', value: 372, type: 'EE'},
+        {id: 4, name: '泰国', value: 421, type: 'SK'},
+        {id: 5, name: '新加坡', value: 65, type: 'SG'},
+        {id: 6, name: '俄罗斯', value: 503, type: 'SV'},
+        {id: 7, name: '西班牙', value: 1868, type: 'TT'},
+        {id: 8, name: '哥伦比亚', value: 49, type: 'DE'},
+        {id: 9, name: '墨西哥', value: 264, type: 'NA'},
+        {id: 10, name: '秘鲁', value: 56, type: 'CL'},
+        {id: 11, name: '智利', value: 263, type: 'ZW'},
       ],
       selectloginData: [
         {id: 0, name: '手机号'},
         {id: 1, name: '邮箱'},
       ],
-      resetphoneNum: '17836985647', // 重置密码时 手机号
+      resetphoneNum: '', // 重置密码时 手机号
       resetEmail: '', // 重置密码时 邮箱
       resetcodeNum: '' ,// 手机号验证码
+      content: '获取验证码',
+      sendTime: 60, // 验证码60s发送一次
+      canSend: false, // 获取验证码按钮 false为可用
       resetphoneError: '', // 重置手机号错误提示
       resetcodeError: '', // 验证码错误提示
-      resetemailError: ''
+      resetemailError: '', // 邮箱错误提示
+      phoneTest: [ // 不同国家手机号正则(可与国家码列表整合)
+        {type: 'CN', value: 86, tests: '^(\\+?0?86\\-?)?1[345789]\\d{9}$'},
+        {type: 'MY', value: 60, tests: '^(\\+?6?01){1}(([145]{1}(\\-|\\s)?\\d{7,8})|([236789]{1}(\\s|\\-)?\\d{7}))$'},
+        {type: 'EE', value: 372, tests: '^(\\+?0?63\\-?)?\\d{10}$'},
+        {type: 'SK', value: 421, tests: '^(\\+?0?66\\-?)?\\d{10}$'},
+        {type: 'SG', value: 65, tests: '^(\\+?0?65\\-?)?\\d{10}$'},
+        {type: 'SV', value: 503, tests: '^(\\+?7|8)?9\\d{9}$'},
+        {type: 'TT', value: 1868, tests: '^(\\+?34)?(6\\d{1}|7[1234])\\d{7}$'},
+        {type: 'DE', value: 49, tests: '^(00){0,1}(49){1}1(\\d{5,6}|\\d{9,12})$'},
+        {type: 'NA', value: 264, tests: '^(00){0,1}(264){1}\\d{6,15}$'},
+        {type: 'CL', value: 56, tests: '^(00){0,1}(56){1}\\d{6,12}$'},
+        {type: 'ZW', value: 263, tests: '^(00){0,1}(263){1}\\d{6,15}$'}
+      ],
+      setpassData: {}
+    },
+    mounted: function() {
+      this.handleToast();
     },
     methods: {
+      // toast提示
+      handleToast: function () {
+        const ToastContrustor = Vue.extend(Toast)
+        Vue.prototype.$toast = function (message, type, delayer = 3000) {
+          // 2. new的方式，根据组件构造器，可以创建出来一个组件对象
+          const toast = new ToastContrustor()
+          Object.assign(toast, { message, type, delayer })
+          // 3. 将组件对象手动的挂载到一个元素上面
+          toast.$mount(document.createElement('div'))
+          // 4. toast.$el对应的就是div
+          document.body.appendChild(toast.$el)
+        }
+      },
+      // 匹配不同国家手机号正则
+      countryReg: function () {
+        for (let i = 0; i < this.phoneTest.length; i++) {
+          if ( this.phoneTest[i].value === this.selectresetPhone) {
+            let reg = new RegExp(this.phoneTest[i].tests)
+            let res = reg.test(this.resetphoneNum)
+            return res
+          }
+        }
+      },
       selectType: function(e) {
           console.log(e.target.value)
       },
       // 下一步至验证码模块
       nextCode: function() {
-        this.resetPass = false // 是否重置密码
-        this.isSendCode = true // 是否发送验证码
+        this.resetphoneError = ''
+        this.resetemailError = ''
+        if (this.selectLogin === 0) {
+          if (!this.countryReg()) {
+            this.resetphoneError = '手机号格式错误！'
+          } else {
+            this.resetPass = false // 是否重置密码
+            this.isSendCode = true // 是否发送验证码
+          }
+        } else if (this.selectLogin ===1) {
+          if (!/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/.test(this.resetEmail)) {
+            this.resetemailError = '邮箱格式不正确'
+          } else {
+            this.resetPass = false // 是否重置密码
+            this.isSendCode = true // 是否发送验证码
+          }
+        }
       },
       // 发送验证码
       sendCode: function () {
@@ -169,9 +269,27 @@
       },
       // 获取到设置的密码
       getPass: function(data) {
+        this.setpassData = data
         this.isSetPass = false // 是否设置密码
         this.isEditOver = true // 密码是否修改完成
         console.log(data)
+      },
+      // 获取手机验证码
+      captchaSend: function() {
+        this.$toast('获取验证码成功', 'success', 3000)
+        this.canSend = true
+        this.content = this.sendTime + 's后重新发送'
+        var that = this; // 不能用let 无法提升
+        let timer = setInterval(function () {
+          that.sendTime--
+          that.content = that.sendTime + 's后重新发送'
+          if (that.sendTime < 0) {
+            clearInterval(timer)
+            that.content = '重新发送验证码'
+            that.sendTime = 60
+            that.canSend = false // 这里重新开启
+          }
+        }, 1000)
       }
     }
   }).$mount('#reset')

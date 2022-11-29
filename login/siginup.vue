@@ -2,7 +2,7 @@
  * @Author: jiangxx 18635949970@163.com
  * @Date: 2022-11-23 11:10:24
  * @LastEditors: jiangxx 18635949970@163.com
- * @LastEditTime: 2022-11-28 16:43:38
+ * @LastEditTime: 2022-11-29 13:45:47
  * @FilePath: \login\login.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -13,7 +13,7 @@
     <div class="form-location">
       <div class="form-title">国家地区</div>
         <select name="" id="" v-model="selectCountry">
-          <option v-for="(item, index) in countryData" :value="item.id" :key="index">{{item.name}}</option>
+          <option v-for="(item, index) in countryData" :value="item.value" :key="index">{{item.name}}</option>
         </select>
       </div>
       <!-- 手机号 国家码 -->
@@ -21,7 +21,7 @@
         <div class="form-title">国家码</div>
         <div class="country">
           <select name="" id="" v-model="selectCountry">
-            <option v-for="(item, index) in countryData" :value="item.id" :key="index">{{item.value}}</option>
+            <option v-for="(item, index) in countryData" :value="item.value" :key="index">{{item.value}}</option>
           </select>
           <input type="text" v-model="phoneNum" maxlength="11" placeholder="请输入手机号">
         </div>
@@ -80,19 +80,19 @@ module.exports = {
   data: function () {
     return {
       isPhoneLogin: true, // true: 手机号注册 false： 邮箱注册
-      selectCountry: 1,
+      selectCountry: 86,
       countryData: [
-        {id: 1, name: '中国', value: '+86'},
-        {id: 2, name: '马来西亚', value: '+60'},
-        {id: 3, name: '菲律宾', value: '+372'},
-        {id: 4, name: '泰国', value: '+421'},
-        {id: 5, name: '新加坡', value: '+65'},
-        {id: 6, name: '俄罗斯', value: '+503'},
-        {id: 7, name: '西班牙', value: '+1868'},
-        {id: 8, name: '哥伦比亚', value: '+49'},
-        {id: 9, name: '墨西哥', value: '+264'},
-        {id: 10, name: '秘鲁', value: '+56'},
-        {id: 11, name: '智利', value: '+56'},
+        {id: 1, name: '中国', value: 86, type: 'CN'},
+        {id: 2, name: '马来西亚', value: 60, type: 'MY'},
+        {id: 3, name: '菲律宾', value: 372, type: 'EE'},
+        {id: 4, name: '泰国', value: 421, type: 'SK'},
+        {id: 5, name: '新加坡', value: 65, type: 'SG'},
+        {id: 6, name: '俄罗斯', value: 503, type: 'SV'},
+        {id: 7, name: '西班牙', value: 1868, type: 'TT'},
+        {id: 8, name: '哥伦比亚', value: 49, type: 'DE'},
+        {id: 9, name: '墨西哥', value: 264, type: 'NA'},
+        {id: 10, name: '秘鲁', value: 56, type: 'CL'},
+        {id: 11, name: '智利', value: 263, type: 'ZW'},
       ],
       // selectPhone: 1, // 注册时 国家码id
       // phoneData: [ // 注册时 国家码列表
@@ -124,12 +124,35 @@ module.exports = {
       getIdentifyCode: '', // input种获取的图形验证码
       identifyCodes: '3456789ABCDEFGHGKMNPQRSTUVWXY', // 验证码规则
       identifyError: '', // 图形验证码提示
+      phoneTest: [ // 不同国家手机号正则
+        {type: 'CN', value: 86, tests: '^(\\+?0?86\\-?)?1[345789]\\d{9}$'},
+        {type: 'MY', value: 60, tests: '^(\\+?6?01){1}(([145]{1}(\\-|\\s)?\\d{7,8})|([236789]{1}(\\s|\\-)?\\d{7}))$'},
+        {type: 'EE', value: 372, tests: '^(\\+?0?63\\-?)?\\d{10}$'},
+        {type: 'SK', value: 421, tests: '^(\\+?0?66\\-?)?\\d{10}$'},
+        {type: 'SG', value: 65, tests: '^(\\+?0?65\\-?)?\\d{10}$'},
+        {type: 'SV', value: 503, tests: '^(\\+?7|8)?9\\d{9}$'},
+        {type: 'TT', value: 1868, tests: '^(\\+?34)?(6\\d{1}|7[1234])\\d{7}$'},
+        {type: 'DE', value: 49, tests: '^(00){0,1}(49){1}1(\\d{5,6}|\\d{9,12})$'},
+        {type: 'NA', value: 264, tests: '^(00){0,1}(264){1}\\d{6,15}$'},
+        {type: 'CL', value: 56, tests: '^(00){0,1}(56){1}\\d{6,12}$'},
+        {type: 'ZW', value: 263, tests: '^(00){0,1}(263){1}\\d{6,15}$'}
+      ]
     } 
   },
   mounted: function () {
     this.makeCode(this.identifyCodes, 4)
   },
   methods: {
+    // 匹配不同国家手机号正则
+    countryReg: function () {
+      for (let i = 0; i < this.phoneTest.length; i++) {
+        if ( this.phoneTest[i].value === this.selectCountry) {
+          let reg = new RegExp(this.phoneTest[i].tests)
+          let res = reg.test(this.phoneNum)
+          return res
+        }
+      }
+    },
     // 错误码重置
     errorReset: function () {
       this.phoneError = '';
@@ -139,7 +162,7 @@ module.exports = {
     },
     // 注册数据重置
     dataReset: function() {
-      this.selectCountry = 1;
+      this.selectCountry = 86;
       this.phoneNum = '';
       this.emailNum = '';
       this.codeNum = '';
@@ -171,7 +194,7 @@ module.exports = {
       if (this.codeNum === '') {
         this.codeError = '请输入短信验证码'
       }
-      if (!this.isChecked) {
+      if (this.isChecked === false) {
         this.$toast('请同意用户协议', 'error', 1500)
       }
       console.log('注册')
@@ -187,7 +210,7 @@ module.exports = {
       if (this.codeNum === '') {
         this.codeError = '请输入短信验证码'
       }
-      if (!this.isChecked) {
+      if (this.isChecked === false) {
         this.$toast('请同意用户协议', 'error', 1500)
       }
       console.log('下一步')
@@ -213,7 +236,7 @@ module.exports = {
         this.refreshCode()
         this.correct = false
       } else {
-        if (!/^((1[3,5,8,7,9][0-9])|(14[5,7])|(17[0,6,7,8])|(19[1,7]))\d{8}$/.test(number)) {
+        if (!this.countryReg()) {
           this.$toast('手机号格式不正确', 'error', 1500)
           this.correct = false
         } else {
